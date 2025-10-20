@@ -33,6 +33,7 @@ export class EventController {
                 timezone,
                 notes,
                 priority,
+                slug: formatToSlug(title),
                 user: {
                     connect: {
                         id: userId
@@ -123,7 +124,8 @@ export class EventController {
                             name: true,
                             email: true,
                             status: true,
-                            selectedTimes: true
+                            selectedTimes: true,
+                            link: true
                         }
                     }
                 },

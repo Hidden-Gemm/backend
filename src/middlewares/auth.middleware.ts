@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { verify } from "jsonwebtoken";
 import { UserLogin } from "../interfaces/auth.interface";
-import { JWT_SECRET_KEY } from "../config";
+import { JWT_SECRET_KEY, prisma } from "../config";
 
-export const verifyToken = (
+export const verifyToken = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -17,6 +17,9 @@ export const verifyToken = (
       email: string;
     };
     if (!decodedToken) throw new Error("Unauthorized");
+    
+    const user = await prisma.user.findUnique({ where: { id: decodedToken.id }})
+    if(!user) throw new Error("User doesn't exist")
     req.user = decodedToken as UserLogin;
 
     next();

@@ -84,6 +84,7 @@ model Event {
     estimatedTime Duration       @default(HALF)
     priority      PriorityStatus @default(LOW)
     timezone      TimeZone       @default(UTC)
+    slug          String         @unique
 
     availableTimes DateTime[]
     matchedTimes   DateTime[]
