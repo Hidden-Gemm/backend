@@ -3,6 +3,7 @@ import { findEventByTitle } from "../utils/event.helper";
 import { Prisma } from "@prisma/client";
 import { DOMAIN_NAME, prisma } from "../config";
 import { formatToSlug } from "../utils/link.helper";
+import { EventUpdate } from "../interfaces/event.interface";
 
 export class EventController {
     async createEvent(req: Request, res: Response, next: NextFunction) {
@@ -115,6 +116,15 @@ export class EventController {
                             id: true,
                             email: true
                         }   
+                    },
+                    participants: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            status: true,
+                            selectedTimes: true
+                        }
                     }
                 },
                 where: filter
@@ -175,6 +185,82 @@ export class EventController {
             res.status(200).send({
                 message: "Event has been deleted successfully"
             })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async editEventById(req: Request, res: Response, next: NextFunction) {
+        try {
+            
+            const userId = req.user?.id
+            const { id } = req.params
+            const {
+                title,
+                notes,
+                date,
+                status,
+                estimatedTime,
+                priority,
+                timezone,
+                availableTimes,
+                participants,
+            } = req.body
+
+            const existEvent = await prisma.event.findUnique({
+                where: {
+                    id,
+                    userId
+                }
+            })
+
+            if(!existEvent) throw new Error(`Event with ID: ${id} not found`)
+            const updatedData: EventUpdate = {}
+
+            if (title) updatedData.title = title;
+            if (notes) updatedData.notes = notes;
+            if (date) updatedData.date = date;
+            if (status) updatedData.status = status;
+            if (estimatedTime) updatedData.estimatedTime = estimatedTime;
+            if (priority) updatedData.priority = priority;
+            if (timezone) updatedData.timezone = timezone;
+            if (availableTimes) updatedData.availableTimes = availableTimes;
+            if (participants) updatedData.participants = participants;
+
+            const updatedEvent = await prisma.event.update({
+                where: { id },
+                data: {
+                    ...updatedData,
+                    participants: participants
+                    ? {
+                        deleteMany: {}, // Clear previous participants
+                        create: participants.map((p: any) => {
+                            const name = typeof p === "string" ? p : p.name;
+                            const email = typeof p === "string" ? null : p.email ?? null;
+
+                            if (!name) {
+                            throw new Error("Each participant must have a name");
+                            }
+
+                            return {
+                            name,
+                            email,
+                            link: `${DOMAIN_NAME}${formatToSlug(title || existEvent.title)}/${formatToSlug(name)}`,
+                            status: "PENDING",
+                            selectedTimes: [],
+                            };
+                        }),
+                        }
+                    : undefined,
+                },
+                include: { participants: true },
+            });
+
+            res.status(200).send({
+                message: "success",
+                data: updatedEvent
+            })
+
         } catch (error) {
             next(error)
         }
