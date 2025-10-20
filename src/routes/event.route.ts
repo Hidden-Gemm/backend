@@ -8,6 +8,9 @@ export const eventRouter = () => {
     const eventController = new EventController()
 
     router.post("/", verifyToken, eventController.createEvent)
+    router.get("/", verifyToken, eventController.getEvents)
+    router.get("/:id", verifyToken, eventController.getEventById)
+    router.delete("/:id", verifyToken, eventController.deteleEvent)
 
     return router
 }

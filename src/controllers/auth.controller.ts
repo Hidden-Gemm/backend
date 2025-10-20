@@ -38,7 +38,7 @@ export class AuthContoller {
                 email: user.email
             })
 
-            res.status(200).json({
+            res.status(200).send({
                 success: true,
                 token,
                 user
