@@ -1,6 +1,7 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import { PORT } from "./config";
 import cors from "cors";
+import { authRouter } from "./routes/auth.route";
 
 export class App {
   private app: Application;
@@ -27,10 +28,13 @@ export class App {
         allowedHeaders: "Content-Type,Authorization",
       })
     );
+    this.app.use(express.urlencoded({extended: true}));
   }
 
   // routes configuration
-  private routes() {}
+  private routes() {
+    this.app.use("/signin", authRouter());
+  }
 
   // handler configuration
   private handleError() {

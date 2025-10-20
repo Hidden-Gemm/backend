@@ -1,3 +1,4 @@
+import { PrismaClient } from "@prisma/client";
 import { config } from "dotenv";
 import { resolve } from "path";
 
@@ -6,4 +7,7 @@ const envFile = NODE_ENV === "development" ? ".env.local" : ".env";
 
 config({ path: resolve(__dirname, `../${envFile}`), override: true });
 
+export const prisma = new PrismaClient()
 export const PORT = process.env.PORT || 8000;
+export const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID || ""
+export const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || ""
