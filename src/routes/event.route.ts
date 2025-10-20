@@ -11,6 +11,7 @@ export const eventRouter = () => {
     router.get("/", verifyToken, eventController.getEvents)
     router.get("/:id", verifyToken, eventController.getEventById)
     router.delete("/:id", verifyToken, eventController.deteleEvent)
+    router.patch("/:id", verifyToken, eventController.editEventById)
 
     return router
 }
