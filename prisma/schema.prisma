@@ -38,32 +38,56 @@ enum TypeNotification {
     UPDATE
 }
 
+enum Duration {
+    HALF
+    HOUR
+}
+
+enum PriorityStatus {
+    LOW
+    MEDIUM
+    HIGH
+}
+
+enum TimeZone {
+  UTC
+  GMT
+  WIB
+  WITA
+  WIT
+  PST
+  EST
+  CET
+  JST
+  AEST
+}
+
 model User {
     id      String  @id @default(uuid())
-    appleId String @unique
+    appleId String  @unique
     email   String?
     events  Event[]
 
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
     deletedAt DateTime?
-    
+
     @@map("users")
 }
 
 model Event {
-    id        String     @id @default(uuid())
-    title     String?    @unique
-    location  String?
-    notes     String?
-    startDate DateTime?
-    endDate   DateTime?
-    allDay    Boolean    @default(false)
-    status    StatusCard @default(DRAFT)
+    id            String         @id @default(uuid())
+    title         String?        @unique
+    notes         String?
+    date          DateTime       @default(now())
+    status        StatusCard     @default(DRAFT)
+    estimatedTime Duration       @default(HALF)
+    priority      PriorityStatus @default(LOW)
+    timezone      TimeZone       @default(UTC)
 
-    proposedTimes DateTime[]
-    matchedTimes  DateTime[]
-    selectedTime  DateTime?
+    availableTimes DateTime[]
+    matchedTimes   DateTime[]
+    selectedTime   DateTime?
 
     participants  Participant[]
     notifications Notification[]
@@ -82,6 +106,7 @@ model Participant {
     id     String     @id @default(uuid())
     name   String
     email  String?
+    link   String
     status StatusVote @default(PENDING)
 
     selectedTimes DateTime[]

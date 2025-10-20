@@ -2,6 +2,7 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import { PORT } from "./config";
 import cors from "cors";
 import { authRouter } from "./routes/auth.route";
+import { eventRouter } from "./routes/event.route";
 
 export class App {
   private app: Application;
@@ -34,6 +35,7 @@ export class App {
   // routes configuration
   private routes() {
     this.app.use("/signin", authRouter());
+    this.app.use("/event", eventRouter())
   }
 
   // handler configuration
