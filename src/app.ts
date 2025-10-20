@@ -3,6 +3,7 @@ import { PORT } from "./config";
 import cors from "cors";
 import { authRouter } from "./routes/auth.route";
 import { eventRouter } from "./routes/event.route";
+import { voteRouter } from "./routes/vote.route";
 
 export class App {
   private app: Application;
@@ -36,6 +37,7 @@ export class App {
   private routes() {
     this.app.use("/signin", authRouter());
     this.app.use("/event", eventRouter())
+    this.app.use("/vote", voteRouter())
   }
 
   // handler configuration
