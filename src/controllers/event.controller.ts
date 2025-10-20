@@ -77,4 +77,106 @@ export class EventController {
             next(error)
         }
     }
+
+    async getEvents(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = req.user?.id;
+            const { name, year, month, day } = req.query;
+
+            let dateFilter: any = {};
+
+            if (year && month && day) {
+                const startDate = new Date(`${year}-${month}-${day}T00:00:00.000Z`);
+                const endDate = new Date(`${year}-${month}-${day}T23:59:59.999Z`);
+                dateFilter.createdAt = { gte: startDate, lte: endDate };
+            } else if (year && month) {
+                const startDate = new Date(`${year}-${month}-01T00:00:00.000Z`);
+                const endDate = new Date(`${year}-${month}-31T23:59:59.999Z`);
+                dateFilter.createdAt = { gte: startDate, lte: endDate };
+            } else if (year) {
+                const startDate = new Date(`${year}-01-01T00:00:00.000Z`);
+                const endDate = new Date(`${year}-12-31T23:59:59.999Z`);
+                dateFilter.createdAt = { gte: startDate, lte: endDate };
+            }
+
+            let filter: any = {
+                userId,
+                ...dateFilter,
+            };
+        
+            if (name) {
+                filter.name = { contains: String(name), mode: 'insensitive' };
+            }
+
+            const data = await prisma.event.findMany({
+                include: {
+                    user: {
+                        select : {
+                            id: true,
+                            email: true
+                        }   
+                    }
+                },
+                where: filter
+            })
+
+            res.status(200).send({
+                message: "success",
+                data
+            })
+
+        } catch (error) {
+            next(error)
+        }
+    }
+    
+    async getEventById(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params
+            const userId = req.user?.id
+
+            const existEvent = await prisma.event.findUnique({
+                where: {
+                    id,
+                    userId
+                },
+                include: {
+                    participants: true
+                }
+            })
+
+            if (!existEvent) throw new Error(`Event with ID: ${id} not found`)
+            res.status(200).send({
+                message: "success",
+                data: existEvent
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async deteleEvent(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params
+            const userId = req.user?.id
+            const eventExist = await prisma.event.findUnique({
+                where: {
+                    id,
+                    userId,
+                },
+            })
+            if(!eventExist) throw new Error(`Event with ID ${id} already deleted`)
+            await prisma.event.delete({
+                where: {
+                    id
+                }
+            })
+
+            res.status(200).send({
+                message: "Event has been deleted successfully"
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
 }

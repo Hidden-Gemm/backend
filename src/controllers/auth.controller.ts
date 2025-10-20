@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import { APPLE_CLIENT_ID, JWT_SECRET_KEY, prisma } from "../config";
 import appleSignIn from "apple-signin-auth";
-import jwt from "jsonwebtoken";
+import { signToken } from "../utils/jwt.helper";
 
 export class AuthContoller {
     async signInWithApple(req: Request, res: Response, next: NextFunction) {
         try {
             
             const { id_token } = req.body;
-            console.log(req.body)
+            
             if (!id_token) throw new Error("Missing Apple ID token")
 
             const decoded = await appleSignIn.verifyIdToken(id_token, {
@@ -32,19 +32,13 @@ export class AuthContoller {
                 })
             }
 
-            const token = jwt.sign(
-                {
-                    id: user.id,
-                    appleId: user.appleId,
-                    email: user.email
-                },
-                JWT_SECRET_KEY,
-                {
-                    expiresIn: "7d"
-                }
-            )
+            const token = signToken({
+                id: user.id,
+                appleId: user.appleId,
+                email: user.email
+            })
 
-            res.status(200).json({
+            res.status(200).send({
                 success: true,
                 token,
                 user
