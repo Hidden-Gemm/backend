@@ -271,4 +271,26 @@ export class EventController {
             next(error)
         }
     }
+
+    async getEventBySlug(req: Request, res: Response, next: NextFunction) {
+        try {
+
+            const { slug } = req.params
+            const event = await prisma.event.findUnique({
+                where: {
+                    slug
+                }
+            })
+
+            if(!event) throw new Error(`Event with slug:${slug} not found`)
+
+            res.status(200).send({
+                message: "success",
+                data: event
+            })
+            
+        } catch (error) {
+            next(error)
+        }
+    }
 }

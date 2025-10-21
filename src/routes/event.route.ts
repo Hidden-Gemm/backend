@@ -209,6 +209,32 @@ export const eventRouter = () => {
    *         description: Event not found
    */
   router.patch("/:id", verifyToken, eventController.editEventById);
+  
+  /**
+   * @swagger
+   * /event/slug/{slug}:
+   *   get:
+   *     summary: Get an event by its slug
+   *     tags: [Events]
+   *     description: Retrieve a single event using its unique slug (human-readable identifier).
+   *     parameters:
+   *       - name: slug
+   *         in: path
+   *         required: true
+   *         description: Unique slug identifier for the event (e.g., "team-sync-meeting").
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Event found successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Event'
+   *       404:
+   *         description: Event not found
+   */
+  router.get("/slug/:slug", eventController.getEventBySlug);
 
   return router;
 };
