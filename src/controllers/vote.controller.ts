@@ -73,7 +73,7 @@ export class VoteController {
             res.status(200).send({
                 message: "success",
                 data: transaction.updatedParticipant,
-                matchedTimes: transaction.matchedTimes
+                // matchedTimes: transaction.matchedTimes
             })
         } catch (error) {
             next(error)
