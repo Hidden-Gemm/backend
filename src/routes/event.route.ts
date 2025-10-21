@@ -40,7 +40,7 @@ import { verifyToken } from "../middlewares/auth.middleware";
  *           enum: [LOW, MEDIUM, HIGH]
  *         timezone:
  *           type: string
- *           example: "Asia/Jakarta"
+ *           example: [UTC, GMT, WIB, WITA, WIT, PST, EST, CET, JST, AEST]
  *         availableTimes:
  *           type: array
  *           items:
@@ -65,13 +65,12 @@ import { verifyToken } from "../middlewares/auth.middleware";
  *               email:
  *                 type: string
  *       example:
- *         id: "d7f2c832-98a1-4e77-bd21-0b6b39c7bcb8"
  *         title: "Team Sync"
  *         notes: "Weekly stand-up meeting"
  *         date: "2025-10-21T09:00:00.000Z"
  *         status: "DRAFT"
  *         priority: "LOW"
- *         timezone: "Asia/Jakarta"
+ *         timezone: "WIB"
  *         availableTimes: ["2025-10-22T09:00:00Z", "2025-10-23T10:00:00Z"]
  *         matchedTimes: []
  *         selectedTime: null
