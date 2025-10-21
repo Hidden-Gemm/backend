@@ -1,17 +1,215 @@
-import { Router } from "express"
-import { EventController } from "../controllers/event.controller"
-import { verifyToken } from "../middlewares/auth.middleware"
+import { Router } from "express";
+import { EventController } from "../controllers/event.controller";
+import { verifyToken } from "../middlewares/auth.middleware";
+
+/**
+ * @swagger
+ * tags:
+ *   name: Events
+ *   description: Manage user events (create, read, update, delete)
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Event:
+ *       type: object
+ *       required:
+ *         - title
+ *         - date
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: Unique ID of the event
+ *         title:
+ *           type: string
+ *           description: Title of the event
+ *         notes:
+ *           type: string
+ *           description: Optional notes or description
+ *         date:
+ *           type: string
+ *           format: date-time
+ *           description: Date of the event
+ *         status:
+ *           type: string
+ *           enum: [DRAFT, WAITING_RESPONSE, NEED_ACTION, COMPLETED]
+ *         priority:
+ *           type: string
+ *           enum: [LOW, MEDIUM, HIGH]
+ *         timezone:
+ *           type: string
+ *           example: "Asia/Jakarta"
+ *         availableTimes:
+ *           type: array
+ *           items:
+ *             type: string
+ *             format: date-time
+ *         matchedTimes:
+ *           type: array
+ *           items:
+ *             type: string
+ *             format: date-time
+ *         selectedTime:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *         participants:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *       example:
+ *         id: "d7f2c832-98a1-4e77-bd21-0b6b39c7bcb8"
+ *         title: "Team Sync"
+ *         notes: "Weekly stand-up meeting"
+ *         date: "2025-10-21T09:00:00.000Z"
+ *         status: "DRAFT"
+ *         priority: "LOW"
+ *         timezone: "Asia/Jakarta"
+ *         availableTimes: ["2025-10-22T09:00:00Z", "2025-10-23T10:00:00Z"]
+ *         matchedTimes: []
+ *         selectedTime: null
+ *         participants: [{ "name": "John Doe", "email": "john@example.com" }]
+ */
 
 export const eventRouter = () => {
-    const router = Router()
+  const router = Router();
+  const eventController = new EventController();
 
-    const eventController = new EventController()
+  /**
+   * @swagger
+   * /event:
+   *   post:
+   *     summary: Create a new event
+   *     tags: [Events]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Event'
+   *     responses:
+   *       201:
+   *         description: Event created successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Event'
+   *       400:
+   *         description: Invalid input
+   */
+  router.post("/", verifyToken, eventController.createEvent);
 
-    router.post("/", verifyToken, eventController.createEvent)
-    router.get("/", verifyToken, eventController.getEvents)
-    router.get("/:id", verifyToken, eventController.getEventById)
-    router.delete("/:id", verifyToken, eventController.deteleEvent)
-    router.patch("/:id", verifyToken, eventController.editEventById)
+  /**
+   * @swagger
+   * /event:
+   *   get:
+   *     summary: Get all events for the authenticated user
+   *     tags: [Events]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: List of user events
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 $ref: '#/components/schemas/Event'
+   */
+  router.get("/", verifyToken, eventController.getEvents);
 
-    return router
-}
+  /**
+   * @swagger
+   * /event/{id}:
+   *   get:
+   *     summary: Get a single event by ID
+   *     tags: [Events]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: Event ID
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Event found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Event'
+   *       404:
+   *         description: Event not found
+   */
+  router.get("/:id", verifyToken, eventController.getEventById);
+
+  /**
+   * @swagger
+   * /event/{id}:
+   *   delete:
+   *     summary: Delete an event by ID
+   *     tags: [Events]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Event deleted successfully
+   *       404:
+   *         description: Event not found
+   */
+  router.delete("/:id", verifyToken, eventController.deteleEvent);
+
+  /**
+   * @swagger
+   * /event/{id}:
+   *   patch:
+   *     summary: Update event details
+   *     tags: [Events]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Event'
+   *     responses:
+   *       200:
+   *         description: Event updated successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Event'
+   *       400:
+   *         description: Invalid input
+   *       404:
+   *         description: Event not found
+   */
+  router.patch("/:id", verifyToken, eventController.editEventById);
+
+  return router;
+};

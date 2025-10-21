@@ -4,6 +4,7 @@ import cors from "cors";
 import { authRouter } from "./routes/auth.route";
 import { eventRouter } from "./routes/event.route";
 import { voteRouter } from "./routes/vote.route";
+import { swaggerSpec, swaggerUi } from "./swagger.config";
 
 export class App {
   private app: Application;
@@ -12,6 +13,7 @@ export class App {
     this.app = express();
     this.configure();
     this.routes();
+    this.swaggerDocs();
     this.handleError();
   }
 
@@ -35,9 +37,14 @@ export class App {
 
   // routes configuration
   private routes() {
-    this.app.use("/signin", authRouter());
-    this.app.use("/event", eventRouter())
-    this.app.use("/vote", voteRouter())
+    this.app.use("/api/signin", authRouter());
+    this.app.use("/api/event", eventRouter())
+    this.app.use("/api/vote", voteRouter())
+  }
+
+  private swaggerDocs() {
+    this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    console.log(`📘 Swagger docs available at http://localhost:${PORT}/api-docs`);
   }
 
   // handler configuration

@@ -40,16 +40,20 @@ export class EventController {
                     }
                 },
                 participants: {
-                    create: participants.map((name: string) => {
-                        return {
-                            name,
-                            email: null,
-                            link: `${DOMAIN_NAME}${formatToSlug(title)}/${formatToSlug(name)}`,
-                            status: "PENDING",
-                            selectedTimes: []
-                        };
-                    })
-                }
+                    create: participants.map((p: any) => {
+                    const participantName = typeof p === "string" ? p : p.name;
+                    const participantEmail =
+                        typeof p === "object" && p.email ? p.email : null;
+
+                    return {
+                        name: participantName,
+                        email: participantEmail,
+                        link: `${DOMAIN_NAME}${formatToSlug(title)}/${formatToSlug(participantName)}`,
+                        status: "PENDING",
+                        selectedTimes: [],
+                    };
+                    }),
+                },
             }
 
             const newEvent = await prisma.event.create({
