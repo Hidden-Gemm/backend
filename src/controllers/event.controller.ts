@@ -24,7 +24,7 @@ export class EventController {
             const existEvent = await findEventByTitle(title)
             if (existEvent) throw new Error("Event already exist")
 
-            const data: Prisma.EventCreateInput = {
+            const data: any = {
                 title,
                 availableTimes,
                 date,
